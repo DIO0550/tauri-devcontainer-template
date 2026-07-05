@@ -1,29 +1,53 @@
-# Tauri setup commands
+# セットアップ / 開発コマンド
 
-Dev Container に入った状態で、リポジトリの root から実行します。
+Dev Container に入った状態で、リポジトリの root から実行します。フロントエンド（React + Vite + Storybook + Biome/oxlint）は同梱済みなので、Rust/Tauri 側だけ初期化すれば動きます。
 
-## React + TypeScript でひな形を作る
-
-`--identifier` は自分のアプリに合わせて書き換えてください（例: `com.example.myapp`）。
+## 1. 依存インストール
 
 ```bash
-pnpm create tauri-app@latest . \
-  --template react-ts \
-  --manager pnpm \
-  --identifier com.example.myapp \
-  --yes \
-  --force
+pnpm install
 ```
 
-`--template` を差し替えれば React 以外のフロントエンド（`vue-ts` / `svelte-ts` / `vanilla-ts` など）でも生成できます。
+これだけでフロントエンドは動きます。
 
-## 開発起動
+- 開発サーバー: `pnpm dev`（<http://localhost:14000>）
+- Storybook: `pnpm storybook`（<http://localhost:6006>）
+- テスト: `pnpm test:run`
+- Lint / Format: `pnpm lint` / `pnpm dlx @biomejs/biome format --write .`
+
+## 2. Tauri（Rust 側）の初期化
+
+`src-tauri/` は同梱していません。以下で生成します（同梱済みの `package.json` などは**上書きされません**）。
+
+```bash
+pnpm tauri init
+```
+
+プロンプトには、このテンプレートのポート/コマンドに合わせて次のように答えます。
+
+| 質問 | 回答 |
+| --- | --- |
+| App name | 任意（例: `my-app`） |
+| Window title | 任意 |
+| Web assets location (relative to `<current dir>/src-tauri`) | `../dist` |
+| URL of your dev server | `http://localhost:14000` |
+| Frontend dev command | `pnpm dev` |
+| Frontend build command | `pnpm build` |
+
+生成後、アプリアイコンを用意します（`create-tauri-app` を使わないため手動）。
+
+```bash
+# 任意の 1024x1024 PNG から各プラットフォーム向けアイコンを生成
+pnpm tauri icon path/to/app-icon.png
+```
+
+## 3. 開発起動
 
 ```bash
 pnpm tauri dev
 ```
 
-Vite の開発サーバーは **14000**、HMR は **14001** を使います（`.devcontainer` で自動転送されるポートと揃えてあります）。ひな形生成後、`vite.config.ts` の `server.port` / `server.hmr.port` を 14000 / 14001 に合わせてください。
+Vite の開発サーバーは **14000**、HMR は **14001** を使います（`vite.config.ts` / `.devcontainer` で揃えてあります）。
 
 ### Tauri ウィンドウの表示（コンテナ内 GUI）
 
@@ -34,28 +58,19 @@ Tauri はデスクトップ GUI アプリのため、コンテナ内に仮想デ
 
 WebView（WebKitGTK）の描画は、コンテナ向けに `WEBKIT_DISABLE_DMABUF_RENDERER` / `WEBKIT_DISABLE_COMPOSITING_MODE` と `DISPLAY=:1` を `devcontainer.json` の `containerEnv` で設定済みです。
 
-## ビルド
+## 4. ビルド
 
 ```bash
 pnpm tauri build
 ```
 
-## Storybook（任意）
+## Storybook
 
-コンポーネント開発に Storybook を使う場合は、ひな形生成後にセットアップします。ポート **6006** は `.devcontainer` で転送済みです。
-
-```bash
-# 対話式に導入（フレームワークは自動検出）
-pnpm dlx storybook@latest init
-
-# 起動（http://localhost:6006 で開く）
-pnpm storybook
-```
-
-`storybook init` が生成する `.storybook/main.ts` の `framework` は、Vite ベースなら `@storybook/react-vite` になります。`@/` alias を使う場合は `viteFinal` で `vite.config.ts` と同じ alias を解決させてください。
-
-Tauri backend（`invoke`）に依存するフックやコンポーネントは、Storybook 上ではバックエンドが無いため、`viteFinal` の `resolve.alias` でモックへ差し替えると表示できます。よく使う addon の例:
+コンポーネントカタログは同梱済みです。ポート **6006** は `.devcontainer` で転送済み。
 
 ```bash
-pnpm add -D @storybook/addon-a11y @storybook/addon-themes
+pnpm storybook          # 開発（http://localhost:6006）
+pnpm build-storybook    # 静的エクスポート（storybook-static/ に出力）
 ```
+
+`.storybook/main.ts` は `@/` alias を `vite.config.ts` と揃えて解決します。Tauri backend（`invoke`）に依存するフック/コンポーネントは、`viteFinal` の `resolve.alias` でモックへ差し替えると Storybook 上で表示できます。
