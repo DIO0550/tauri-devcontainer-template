@@ -8,7 +8,7 @@ Dev Container に入った状態で、リポジトリの root から実行しま
 pnpm install
 ```
 
-これだけでフロントエンドは動きます。
+`pnpm-lock.yaml` を同梱しているため、バージョンを固定して入れる場合は `pnpm install --frozen-lockfile` を使います。これだけでフロントエンドは動きます。
 
 - 開発サーバー: `pnpm dev`（<http://localhost:14000>）
 - Storybook: `pnpm storybook`（<http://localhost:6006>）
