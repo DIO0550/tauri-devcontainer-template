@@ -17,6 +17,7 @@ RUN apt-get update \
         gnupg \
         git \
         jq \
+        sudo \
         tmux \
         vim-tiny \
         build-essential \
@@ -33,6 +34,8 @@ RUN apt-get update \
         zip \
         unzip \
     && useradd -m -s /bin/bash $USERNAME \
+    && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME \
     && curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
