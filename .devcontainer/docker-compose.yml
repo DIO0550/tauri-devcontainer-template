@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      context: ./node
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    ports:
+      - "4000:4000"
+      - "4001:4001"
+    command: sleep infinity
