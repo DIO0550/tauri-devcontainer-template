@@ -34,10 +34,9 @@ pnpm tauri init
 | Frontend dev command | `pnpm dev` |
 | Frontend build command | `pnpm build` |
 
-生成後、アプリアイコンを用意します（`create-tauri-app` を使わないため手動）。
+`pnpm tauri init` は `src-tauri/icons/` に **Tauri のデフォルトアイコン**も生成するため、そのまま `tauri dev` / `tauri build` が通ります。独自アイコンに差し替えたいときだけ、任意の 1024x1024 PNG から各プラットフォーム向けを生成します。
 
 ```bash
-# 任意の 1024x1024 PNG から各プラットフォーム向けアイコンを生成
 pnpm tauri icon path/to/app-icon.png
 ```
 
