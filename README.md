@@ -73,9 +73,7 @@ WebView（WebKitGTK）の描画向けに `WEBKIT_DISABLE_DMABUF_RENDERER` / `WEB
 src/                    # React フロントエンド
 ├── main.tsx            # エントリーポイント
 ├── App.tsx             # ルートコンポーネント
-├── index.css           # Tailwind エントリ
-└── components/
-    └── Button/         # 例: コンポーネント + Story + テスト
+└── index.css           # Tailwind エントリ
 public/                 # 静的アセット
 index.html              # Vite エントリ HTML
 package.json            # 依存 / スクリプト

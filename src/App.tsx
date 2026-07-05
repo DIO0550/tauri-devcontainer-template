@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Button } from "@/components/Button";
 
 export const App = () => {
   const [count, setCount] = useState(0);
@@ -10,7 +9,13 @@ export const App = () => {
       <p className="text-gray-500">
         Dev Container 上で動く Tauri + React (TypeScript) のスターターです。
       </p>
-      <Button label={`Count: ${count}`} onClick={() => setCount((c) => c + 1)} />
+      <button
+        type="button"
+        onClick={() => setCount((c) => c + 1)}
+        className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+      >
+        Count: {count}
+      </button>
     </main>
   );
 };
