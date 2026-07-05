@@ -8,4 +8,5 @@ services:
     ports:
       - "14000:14000"
       - "14001:14001"
+      - "6006:6006"
     command: sleep infinity

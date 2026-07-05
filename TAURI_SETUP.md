@@ -39,3 +39,23 @@ WebView（WebKitGTK）の描画は、コンテナ向けに `WEBKIT_DISABLE_DMABU
 ```bash
 pnpm tauri build
 ```
+
+## Storybook（任意）
+
+コンポーネント開発に Storybook を使う場合は、ひな形生成後にセットアップします。ポート **6006** は `.devcontainer` で転送済みです。
+
+```bash
+# 対話式に導入（フレームワークは自動検出）
+pnpm dlx storybook@latest init
+
+# 起動（http://localhost:6006 で開く）
+pnpm storybook
+```
+
+`storybook init` が生成する `.storybook/main.ts` の `framework` は、Vite ベースなら `@storybook/react-vite` になります。`@/` alias を使う場合は `viteFinal` で `vite.config.ts` と同じ alias を解決させてください。
+
+Tauri backend（`invoke`）に依存するフックやコンポーネントは、Storybook 上ではバックエンドが無いため、`viteFinal` の `resolve.alias` でモックへ差し替えると表示できます。よく使う addon の例:
+
+```bash
+pnpm add -D @storybook/addon-a11y @storybook/addon-themes
+```
