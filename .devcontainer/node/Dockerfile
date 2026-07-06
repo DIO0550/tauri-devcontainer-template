@@ -33,6 +33,10 @@ RUN apt-get update \
         wget \
         zip \
         unzip \
+        iptables \
+        ipset \
+        dnsutils \
+        aggregate \
     && useradd -m -s /bin/bash $USERNAME \
     && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \

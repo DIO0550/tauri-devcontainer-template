@@ -21,6 +21,7 @@ Ubuntu ベースのコンテナに Tauri のビルドに必要なシステムラ
 | UI カタログ | Storybook (ポート 6006 を転送済み) |
 | GUI 表示 | desktop-lite (noVNC / VNC。Tauri ウィンドウをブラウザで表示) |
 | ターミナル | tmux |
+| ネットワーク | ファイアウォール (外向き通信を許可リストで制限。iptables / ipset) |
 
 ## VS Code 拡張機能
 
@@ -59,12 +60,23 @@ Tauri はデスクトップ GUI アプリのため、コンテナ内に仮想デ
 
 WebView（WebKitGTK）の描画向けに `WEBKIT_DISABLE_DMABUF_RENDERER` / `WEBKIT_DISABLE_COMPOSITING_MODE` / `DISPLAY=:1` を `devcontainer.json` の `containerEnv` に設定済みです。
 
+## ネットワークファイアウォール（外向き通信の制限）
+
+コンテナからの外向き通信（egress）を、`.devcontainer/init-firewall.sh` で **許可リスト方式** に制限しています。開発に必要な宛先（GitHub / npm レジストリ / crates.io / rustup / Anthropic API など）だけを許可し、それ以外への通信はすべて遮断します。意図しない外部への通信を防ぐための安全策です。
+
+- 適用タイミング: コンテナ作成時（`devcontainer.json` の `postCreateCommand` 末尾で `sudo .devcontainer/init-firewall.sh` を実行）
+- 仕組み: `iptables` でデフォルト DROP にし、`ipset` に登録した許可先（GitHub の公開 IP レンジ + 許可ドメインの解決結果）だけを ACCEPT します。DNS・localhost・確立済みコネクション・ホストネットワークは常に許可します。
+- 必要な権限: `docker-compose.yml` の `cap_add` に `NET_ADMIN` / `NET_RAW` を付与しています。
+
+許可先を追加したいときは、`.devcontainer/init-firewall.sh` の `ALLOWED_DOMAINS` 配列にドメインを追記してください。ファイアウォールが不要な場合は、`postCreateCommand` 末尾の `&& sudo .devcontainer/init-firewall.sh` と、`docker-compose.yml` の `cap_add` を削除します。
+
 ## プロジェクト構成
 
 ```
 .devcontainer/
 ├── devcontainer.json   # Dev Container 設定
 ├── docker-compose.yml  # Docker Compose 定義
+├── init-firewall.sh    # 外向き通信を許可リストで制限するファイアウォール
 └── node/
     └── Dockerfile      # コンテナイメージ定義
 .storybook/             # Storybook 設定 (main.ts / preview.ts)
@@ -74,6 +86,13 @@ src/                    # React フロントエンド
 ├── main.tsx            # エントリーポイント
 ├── App.tsx             # ルートコンポーネント
 └── index.css           # Tailwind エントリ
+src-tauri/              # Tauri (Rust 側)。tauri init 標準構成を同梱
+├── Cargo.toml          # Rust 依存 / クレート設定
+├── tauri.conf.json     # Tauri 設定 (ポート / コマンド / アプリ名)
+├── build.rs            # ビルドスクリプト
+├── capabilities/       # 権限 (capability) 定義
+├── icons/              # アプリアイコン (デフォルト同梱)
+└── src/                # Rust エントリ (main.rs / lib.rs)
 public/                 # 静的アセット
 index.html              # Vite エントリ HTML
 package.json            # 依存 / スクリプト
@@ -83,13 +102,14 @@ biome.json / .oxlintrc.json  # Lint / Format 設定
 TAURI_SETUP.md          # セットアップ / 開発コマンド
 ```
 
-※ `src-tauri/`（Rust 側）は同梱していません。[TAURI_SETUP.md](TAURI_SETUP.md) の手順で `pnpm tauri init` により生成します。
+`src-tauri/`（Rust 側）は `pnpm tauri init` で生成した標準構成を同梱済みです。`pnpm install` 後、そのまま `pnpm tauri dev` で起動できます。詳細は [TAURI_SETUP.md](TAURI_SETUP.md) を参照してください。
 
 ## カスタマイズ
 
 - **Node.js のバージョン**: `.devcontainer/node/Dockerfile` の `ARG NODE_VERSION` を変更します。
 - **転送ポート**: アプリのポート（`14000`/`14001`）は `.devcontainer/devcontainer.json` の `forwardPorts` と `.devcontainer/docker-compose.yml` の `ports` を揃えて変更します。GUI ポート（`16080`/`15901`）は `devcontainer.json` の `features` の `webPort` / `vncPort` と `forwardPorts` を揃えます。
 - **GUI パスワード**: `devcontainer.json` の `features` → `desktop-lite` → `password` で変更します。GUI が不要な場合は `features` / `containerEnv` / GUI ポートを削除します。
+- **ファイアウォール許可先**: `.devcontainer/init-firewall.sh` の `ALLOWED_DOMAINS` 配列で追加・削除します。ファイアウォール自体が不要な場合は `postCreateCommand` の該当箇所と `docker-compose.yml` の `cap_add` を削除します。
 - **セットアップスクリプト**: `Dockerfile` / `devcontainer.json` はコンテナ構築時に外部 gist（リポジトリオーナーの gist）から gh / pnpm / AI ツール / tmux / Playwright などのセットアップスクリプトを取得します。用途に応じて差し替え・削除してください。
 
 ## ライセンス

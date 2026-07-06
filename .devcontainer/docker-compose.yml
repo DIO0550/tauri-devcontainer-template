@@ -9,4 +9,8 @@ services:
       - "14000:14000"
       - "14001:14001"
       - "6006:6006"
+    # init-firewall.sh が iptables/ipset を操作するために必要な権限
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     command: sleep infinity
