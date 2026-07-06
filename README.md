@@ -15,7 +15,7 @@ Ubuntu ベースのコンテナに Tauri のビルドに必要なシステムラ
 | バージョン管理 | Git |
 | GitHub CLI | gh |
 | フロントエンド | React 19 / Vite 8 / TypeScript 5.8 |
-| スタイル | Tailwind CSS v4 (`@tailwindcss/vite`) |
+| スタイル | Tailwind CSS v4 (`@tailwindcss/vite`。同梱・任意利用) |
 | Lint / Format | Biome / oxlint |
 | テスト | Vitest (happy-dom) / Playwright (ブラウザ依存パッケージ込み) |
 | UI カタログ | Storybook (ポート 6006 を転送済み) |
@@ -82,18 +82,20 @@ WebView（WebKitGTK）の描画向けに `WEBKIT_DISABLE_DMABUF_RENDERER` / `WEB
 .storybook/             # Storybook 設定 (main.ts / preview.ts)
 .vscode/
 └── extensions.json     # 推奨拡張機能
-src/                    # React フロントエンド
+src/                    # React フロントエンド (create-tauri-app デフォルト構成)
 ├── main.tsx            # エントリーポイント
-├── App.tsx             # ルートコンポーネント
-└── index.css           # Tailwind エントリ
+├── App.tsx             # ルートコンポーネント (greet デモ)
+├── App.css             # スタイル
+├── assets/             # 画像アセット (react.svg など)
+└── vite-env.d.ts       # Vite 型定義
 src-tauri/              # Tauri (Rust 側)。tauri init 標準構成を同梱
 ├── Cargo.toml          # Rust 依存 / クレート設定
 ├── tauri.conf.json     # Tauri 設定 (ポート / コマンド / アプリ名)
 ├── build.rs            # ビルドスクリプト
 ├── capabilities/       # 権限 (capability) 定義
 ├── icons/              # アプリアイコン (デフォルト同梱)
-└── src/                # Rust エントリ (main.rs / lib.rs)
-public/                 # 静的アセット
+└── src/                # Rust エントリ (main.rs / lib.rs。greet コマンド)
+public/                 # 静的アセット (tauri.svg / vite.svg)
 index.html              # Vite エントリ HTML
 package.json            # 依存 / スクリプト
 vite.config.ts          # Vite + Vitest 設定 (ポート 14000/14001)
