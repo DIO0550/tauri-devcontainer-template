@@ -1,6 +1,6 @@
 # セットアップ / 開発コマンド
 
-Dev Container に入った状態で、リポジトリの root から実行します。フロントエンド（React + Vite + Storybook + Biome/oxlint）は同梱済みなので、Rust/Tauri 側だけ初期化すれば動きます。
+Dev Container に入った状態で、リポジトリの root から実行します。フロントエンド（React + Vite + Storybook + Biome/oxlint）と Tauri（Rust 側の `src-tauri/`）はどちらも同梱済みなので、依存を入れればそのまま起動できます。
 
 ## 1. 依存インストール
 
@@ -15,26 +15,20 @@ pnpm install
 - テスト: `pnpm test:run`
 - Lint / Format: `pnpm lint` / `pnpm dlx @biomejs/biome format --write .`
 
-## 2. Tauri（Rust 側）の初期化
+## 2. Tauri（Rust 側）の構成
 
-`src-tauri/` は同梱していません。以下で生成します（同梱済みの `package.json` などは**上書きされません**）。
+`src-tauri/` は `pnpm tauri init` で生成した標準構成を **同梱済み**です。ポート/コマンドはこのテンプレートに合わせて設定してあります。
 
-```bash
-pnpm tauri init
-```
+| 項目 | 値 | 設定箇所 |
+| --- | --- | --- |
+| Web assets location | `../dist` | `src-tauri/tauri.conf.json` の `build.frontendDist` |
+| Dev server URL | `http://localhost:14000` | `build.devUrl` |
+| Frontend dev command | `pnpm dev` | `build.beforeDevCommand` |
+| Frontend build command | `pnpm build` | `build.beforeBuildCommand` |
 
-プロンプトには、このテンプレートのポート/コマンドに合わせて次のように答えます。
+アプリ名・ウィンドウタイトル・識別子（`identifier`）などは `src-tauri/tauri.conf.json`、Rust クレート名は `src-tauri/Cargo.toml` で変更できます。
 
-| 質問 | 回答 |
-| --- | --- |
-| App name | 任意（例: `my-app`） |
-| Window title | 任意 |
-| Web assets location (relative to `<current dir>/src-tauri`) | `../dist` |
-| URL of your dev server | `http://localhost:14000` |
-| Frontend dev command | `pnpm dev` |
-| Frontend build command | `pnpm build` |
-
-`pnpm tauri init` は `src-tauri/icons/` に **Tauri のデフォルトアイコン**も生成するため、そのまま `tauri dev` / `tauri build` が通ります。独自アイコンに差し替えたいときだけ、任意の 1024x1024 PNG から各プラットフォーム向けを生成します。
+`src-tauri/icons/` には **Tauri のデフォルトアイコン**が入っているため、そのまま `tauri dev` / `tauri build` が通ります。独自アイコンに差し替えたいときだけ、任意の 1024x1024 PNG から各プラットフォーム向けを生成します。
 
 ```bash
 pnpm tauri icon path/to/app-icon.png
