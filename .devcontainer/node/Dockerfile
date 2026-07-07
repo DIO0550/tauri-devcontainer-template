@@ -69,5 +69,14 @@ RUN curl -fsSL https://gist.githubusercontent.com/DIO0550/148b1392cf435ba3562da0
 RUN curl -fsSL https://gist.githubusercontent.com/DIO0550/356434ec2b182f71d99dc0c467555ba5/raw/tmux-setup.sh | bash
 RUN curl -fsSL https://gist.githubusercontent.com/DIO0550/6e5249a1b3682e702c875851756f0373/raw/install-playwright.sh | bash
 
+# 実行時ユーザー(vscode)から sudo 権限を剥奪する。
+# ビルド中は上記スクリプトのために sudo を使えるようにしておき、
+# ここで sudoers を削除して実行時には root 権限を持たせない。
+# 特権が必要な初期化(firewall / VNC)はコンテナ起動時に root の
+# エントリポイント(.devcontainer/entrypoint.sh)で実行する。
+# コンテナ本体プロセスを root で動かすため、最終 USER は root のままにする
+# （開発セッションは devcontainer.json の remoteUser: vscode で動く）。
+USER root
+RUN rm -f /etc/sudoers.d/$USERNAME
 
 WORKDIR /workspace

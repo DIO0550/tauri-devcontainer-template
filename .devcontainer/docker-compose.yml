@@ -13,4 +13,7 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    command: sleep infinity
+    # 特権が必要な初期化(firewall / VNC)を root のエントリポイントで実行する。
+    # これにより開発ユーザー(vscode)には sudo を付与せずに済む。
+    entrypoint: ["bash", "/workspace/.devcontainer/entrypoint.sh"]
+    command: ["sleep", "infinity"]
