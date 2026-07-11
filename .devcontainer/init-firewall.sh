@@ -34,8 +34,6 @@ ALLOWED_DOMAINS=(
   # --- Anthropic / Claude Code（AI ツール）---
   "api.anthropic.com"
   "statsig.anthropic.com"
-  "sentry.io"
-  "statsig.com"
 )
 
 echo "==> Flushing existing firewall rules..."
